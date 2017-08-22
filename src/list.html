@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>蜜豆定制 把热爱穿身上</title>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <link rel="stylesheet" href="css/index.css?v=243242">
+</head>
+
+<body>
+  <div class="list-container container" id='list-container'>
+    <h2>排行榜</h2>
+    <div class="list-wrap" id="scroller">
+       <div class="thumb-wrap">
+         <div class="thumbs">
+         <!-- <div class="thumb-box">
+            <div class="pro-thumb" style="background-image: url(images/index.png)">
+              <div  class="list-vote">投票</div>
+            </div>
+            <h6 class="vote-num">12121</h6>
+          </div> -->
+          </div>
+          <div id="slide-loading-tops" style="text-align: center; line-height: 20px; display: none;">
+              数据加载中...
+          </div>
+        </div>
+    </div>
+
+  </div>
+
+  <div class="spinner-wrap" id="spinner-wrap">
+    <div class="spinner">
+     <div class="double-bounce1"></div>
+     <div class="double-bounce2"></div>
+   </div>
+    <span class="loading-tips">...</span>
+  </div>
+
+  <script src="//cdn.bootcss.com/jquery/3.0.0-alpha1/jquery.min.js"></script>
+  <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+  <script src="js/WeChat.js?v=20151229"></script>
+  <script src="js/protocol.js?v=20151229"></script>
+  <script src="js/util.js"></script>
+  <script src="js/hammer.js"></script>
+  <script src="js/iscroll-lite.js"></script>
+  <script src="js/custom-underwear.js?v=ewr"></script>
+  <script>
+    /*******排行榜*********/
+    var sWidth = Math.min(window.innerWidth || Infinity, screen.width);
+    var sHeight = Math.min(window.innerHeight || Infinity, screen.height);
+
+    ;(function(){
+      var container = $('#list-container');
+      container.append('<style>#list-container .pro-thumb{height: '+ sHeight / 3 +'px;}</style>');
+
+      $('#scroller').height(sHeight - $('#list-container h2').height());
+
+      var pageIndex = 0;
+
+      var tmpl = function(data){
+        var str =  '<div class="thumb-box" >'
+                +  ' <div class="pro-thumb" style="background-image: url('+ data.di +')"></div>'
+                +  ' <h6 class="vote-num" data-did="'+ data.id +'">'+ data.v +'</h6>'
+                +  ' <a href="detail.html?did='+ data.id +'"  data-did="'+ data.id +'"></a>'
+                +  ' <div  class="list-vote" data-did="'+ data.id +'">投票</div>'
+                +  ' </div>'
+        return str;
+      }
+
+    var  isLoading = true;
+    var  isDone = false;
+      tips.setTips('数据加载中...').show();
+      customUnderwearProto.getTopList(pageIndex, 6, function(data) {
+        var str = '';
+        if (data.r == 1 && data.rea == 0) {
+          data.l.forEach(function(item, index) {
+              str += tmpl(item);
+          })
+          pageIndex++ ;
+          prosWrap.innerHTML = str;
+
+          scroller.refresh();
+          isLoading = false;
+          tips.hide();
+        }
+      })
+
+
+    var listHammer = new Hammer(document.querySelector('#list-container'));
+
+    listHammer.on('tap', function(ev) {
+      if ($(ev.target).is('a')) {
+        window.location.href = 'detail.html?did=' + $(ev.target).data('did');
+      }
+
+      if ($(ev.target).is('.list-vote')) {
+        customUnderwearProto.vote( $(ev.target).data('did'), function(responseData) {
+          if ( 1 == responseData["r"] && 0 == responseData["rea"]) {
+            var voteWrap = $(ev.target).parents('.thumb-box').find('.vote-num');
+            voteWrap.html((1 + parseInt(voteWrap.html())));
+          } else if (responseData["rea"] == '3') {
+            alert('您已经投过票了');
+          } else {
+            alert(customUnderwearProto.REQUEST_ERROR_TIP);
+          }
+        });
+      }
+
+    })
+
+    var  prosWrap = document.querySelector('#scroller .thumb-wrap .thumbs');
+
+
+
+    var scroller;
+      scroller = new IScroll('#scroller');
+      document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+
+      scroller.on('scrollEnd', function(){
+         if ( this.directionY == 1 && isLoading == false && isDone == false) {
+           isLoading = true;
+           $('#slide-loading-tops').show();
+           scroller.refresh();
+           customUnderwearProto.getTopList(pageIndex, 6, function(data) {
+             var str = '';
+             if (data.r == 1) {
+               if (data.rea == 2) {
+                 isDone = true;
+               } else if (data.rea == 0) {
+                 data.l.forEach(function(item, index) {
+                     str += tmpl(item);
+                 })
+
+                 pageIndex++;
+                 $(prosWrap).append(str);
+               }
+
+               $('#slide-loading-tops').hide();
+               scroller.refresh();
+               isLoading = false;
+
+             }
+           })
+
+         }
+      })
+
+    })();
+
+  </script>
+</body>
+</html>

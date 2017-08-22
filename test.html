@@ -1,0 +1,59 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+</head>
+<style>
+  *{
+    padding: 0;
+    margin: 0;
+}
+canvas{
+  border: 1px solid red;
+}
+</style>
+
+<body>
+<canvas id="canvas1" ></canvas>
+<script type="text/javascript">
+var PIXEL_RATIO = (function () {
+  var ctx = document.createElement("canvas").getContext("2d"),
+      dpr = window.devicePixelRatio || 1,
+      bsr = ctx.webkitBackingStorePixelRatio ||
+            ctx.mozBackingStorePixelRatio ||
+            ctx.msBackingStorePixelRatio ||
+            ctx.oBackingStorePixelRatio ||
+            ctx.backingStorePixelRatio || 1;
+
+  return dpr / bsr;
+})();
+
+  window.onload = function () {
+  var canvas = document.getElementById('canvas1');
+  var ctx = canvas.getContext("2d");
+  var width, height;
+  width = 320;
+  height = 568;
+
+  canvas.style.width = width+'px';
+  canvas.style.height = height + 'px';
+  canvas.width = width * PIXEL_RATIO;
+  canvas.height = height * PIXEL_RATIO;
+
+  ctx.scale(PIXEL_RATIO, PIXEL_RATIO);
+  
+  ctx.beginPath();
+  ctx.moveTo(0, height / 2);
+  ctx.quadraticCurveTo(width / 2, height / 2 + 30, width, height / 2);
+  ctx.stroke();
+
+  var img = new Image();
+  img.src = "src/images/test.png";
+  img.onload = function () {
+      ctx.drawImage(img, 20, 20, img.width/2, img.height/2);
+  }
+  }();
+</script>
+</body>
+</html>

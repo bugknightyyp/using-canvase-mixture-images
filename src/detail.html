@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>蜜豆定制 把热爱穿身上</title>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+    <link rel="stylesheet" href="css/index.css?v=12">
+</head>
+
+<body>
+  <!-- index  page 1-->
+  <div class="detail-container container">
+    <h6 id='votes'>-票</h6>
+    <div class="pro-wrap">
+      <img id="pro" src="" alt="">
+    </div>
+    <div class="fixed-wrap">
+      <div class="menu-list">
+        <div><a href="index.html">制作</a></div>
+        <div><div id="btn-vote">投票</div></div>
+        <div><a href="http://z.jd.com/project/details/42397.html" style="color: #c81624;font-size:14px; line-height:14px; padding-top: 8px;">京东<br>众筹</a></div>
+      </div>
+        <!-- <div class="brand-wrap">&nbsp;</div> -->
+    </div>
+  </div>
+
+  <script src="//cdn.bootcss.com/jquery/3.0.0-alpha1/jquery.min.js"></script>
+  <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+  <script src="js/hammer.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/WeChat.js?v=20151229"></script>
+  <script src="js/protocol.js?v=20151229"></script>
+  <script>
+    var did = util.getUrlParam('did');
+    customUnderwearProto.getDesign(did, function(responseData) {
+      if (1 != responseData["r"] || 0 != responseData["rea"]) {
+          alert(customUnderwearProto.REQUEST_ERROR_TIP);
+      } else {
+
+          $('#votes').html(responseData.v + '票').data('votes', responseData.v);
+          $('#pro').attr('src', responseData.di);
+
+        }
+    })
+
+    var voteHammer = new Hammer(document.querySelector('#btn-vote'));
+    voteHammer.on('tap', function(ev) {
+      customUnderwearProto.vote(did, function(responseData) {
+        if ( 1 == responseData["r"] && 0 == responseData["rea"]) {
+          $('#votes').html((1 + parseInt($('#votes').data('votes')))  +  '票');
+        } else if (responseData["rea"] == '3') {
+          alert('您已经投过票了');
+        } else {
+          alert(customUnderwearProto.REQUEST_ERROR_TIP);
+        }
+      });
+    })
+
+  </script>
+</body>
+<img src="images/share.png" class="tips-img" alt=""  style="position: absolute; top: -2px; right: -2px">
+</html>
